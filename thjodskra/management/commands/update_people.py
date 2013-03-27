@@ -18,13 +18,12 @@ class Command(BaseCommand):
 		for l in f.readlines():
 			p, created, info = Person.from_string( l )
 			if created:
-				p.save()
 				create_count += 1
 			else:
 				p.update( info )
-				p.save()
 				update_count += 1
-				
+
+			p.save()
 			sys.stdout.write( '\r Updated %7i people. Created %7i people.' % (update_count,create_count) )
 			sys.stdout.flush()
 		print '\nDone'

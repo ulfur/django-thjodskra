@@ -1,7 +1,11 @@
 #encoding: utf-8
 
+import math
+from datetime import datetime
+
 from django.db import models
 
+from .searchable import SearchablePerson, SearchableManager
 from .utils import parse_line_en
 
 SEX_CHOICES = (
@@ -59,7 +63,8 @@ class Person( models.Model ):
 	blocked = models.BooleanField( default=False )		#Bannmerking
 	mod_date = models.DateField( blank=True, null=True ) #Dagsetning hreyfingar
 	
-
+	objects = SearchableManager( SearchablePerson )
+	
 	def __unicode__( self ):
 		return u'%s (%s)'%(self.name, self.ssn)
 
@@ -80,8 +85,11 @@ class Person( models.Model ):
 	def update( self, info ):
 		for k, v in info.items():
 			if hasattr( self, k ):
-				setattr( self, k, v )
-		
-		
-		
+				setattr( self, k, v )		
+	@property
+	def age( self ):
+		now = datetime.now()
+		delta = now.date() - self.date_of_birth
+		return int( math.floor( delta.days/365.25 ) )
+
 		

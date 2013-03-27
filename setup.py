@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name = "django-thjodskra",
-    version = "0.2",
+    version = "0.20",
     description = "django-thjodskra is a simple app for integrating the icelandic national registry into your django project",
     author = "Úlfur Kristjánsson",
     author_email = "ulfur@theawesometastic.com",

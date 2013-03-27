@@ -6,6 +6,7 @@ You still need to aquire the data files through the proper channel. This project
 
 ###Usage:
 manage.py import_users [filename]
+
 manage.py update_users [filename]
 
 These can then be added to any script or cronjob as needed.

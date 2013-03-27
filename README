@@ -1,0 +1,2 @@
+django-thjodskra is a Django app for easily integrating the icelandic national registry into your project.
+It contains models for handling registry entities and scripts for parsing the archaic fileformat provided by the registry providers.

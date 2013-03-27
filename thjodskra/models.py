@@ -64,18 +64,24 @@ class Person( models.Model ):
 		return u'%s (%s)'%(self.name, self.ssn)
 
 	@classmethod
-	def from_string( self, s ):
+	def from_string( self, s, update=True ):
 		"""Parses an individual person from a national registry row"""
 		info = parse_line_en( s )
-		fresh = False
+		created = False
 		try:
 			p = Person.objects.get( ssn=info['ssn'] )
 		except Person.DoesNotExist:
 			p = Person( )
-			fresh = True
-			for k, v in info.items():
-				if hasattr( p, k ):
-					setattr( p, k, v )
-		return p, fresh
-		
+			p.update( info )
+			created = True
 
+		return p, created, info
+	
+	def update( self, info ):
+		for k, v in info.items():
+			if hasattr( self, k ):
+				setattr( self, k, v )
+		
+		
+		
+		

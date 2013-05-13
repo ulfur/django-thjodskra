@@ -27,11 +27,11 @@ MARITAL_CHOICES = (
 class Person( models.Model ):
 	"""docstring for Person"""
 
-	name = models.CharField( max_length=31 )			#Nafn
+	name = models.CharField( db_index=True, max_length=31 )			#Nafn
 	sort_code = models.CharField( max_length=31 )		#Röðunarsvæði fyrir nafn
 
 	personal_id = models.CharField( max_length=8 )		#Nafnnúmer
-	ssn = models.CharField( max_length=10 )				#Kennitala
+	ssn = models.CharField( db_index=True, max_length=10 )				#Kennitala
 	ssn_spouse = models.CharField( max_length=10 )		#Kennitala maka
 	ssn_guardian = models.CharField( max_length=10 )	#Kennitala umboðsmanns
 	family_id = models.CharField( max_length=10 )		#Fjölskyldunúmer
@@ -63,8 +63,20 @@ class Person( models.Model ):
 	def __unicode__( self ):
 		return u'%s (%s)'%(self.name, self.ssn)
 
+	@property
+	def spouse( self ):
+		if self.ssn_spouse:
+			return Person.objects.get( ssn=self.ssn_spouse )
+		return None
+		
+	@property
+	def guardian( self ):
+		if self.ssn_guardian:
+			return Person.objects.get( ssn=self.ssn_guardian )
+		return None
+		
 	@classmethod
-	def from_string( self, s ):
+	def update_from_string( self, s ):
 		"""Parses an individual person from a national registry row"""
 		info = parse_line_en( s )
 		fresh = False
@@ -73,9 +85,20 @@ class Person( models.Model ):
 		except Person.DoesNotExist:
 			p = Person( )
 			fresh = True
-			for k, v in info.items():
-				if hasattr( p, k ):
-					setattr( p, k, v )
+		for k, v in info.items():
+			if hasattr( p, k ):
+				setattr( p, k, v )
+		return p, fresh
+	
+	@classmethod
+	def from_string( self, s ):
+		"""Parses an individual person from a national registry row"""
+		info = parse_line_en( s )
+		p = Person( )
+		fresh = True
+		for k, v in info.items():
+			if hasattr( p, k ):
+				setattr( p, k, v )
 		return p, fresh
 		
-
+		

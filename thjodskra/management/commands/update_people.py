@@ -8,7 +8,7 @@ from ...models import Person
 class Command(BaseCommand):
 
     args = u'<filename>'
-    help = u'Imports people from þjóðskrá'
+    help = u'Updates people from þjóðskrá'
 
     def handle(self, *args, **options):
 
@@ -26,11 +26,11 @@ class Command(BaseCommand):
 		for l in lines:
 			s = datetime.now()
 			
-			p, fresh = Person.from_string( l )
-			if fresh:
-				buff.append( p )
-				count += 1
-			
+			p, fresh = Person.update_from_string( l )
+			if fresh: buff.append( p )
+			else: p.save()
+			count += 1
+				
 			if len(buff) >= 250:
 				Person.objects.bulk_create( buff )
 				buff = []
@@ -45,3 +45,5 @@ class Command(BaseCommand):
 			Person.objects.bulk_create(buff)
 			
 		print '\nDone'
+
+

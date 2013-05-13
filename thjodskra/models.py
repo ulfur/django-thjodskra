@@ -1,7 +1,11 @@
 #encoding: utf-8
 
+import math
+from datetime import datetime
+
 from django.db import models
 
+from .searchable import SearchablePerson, SearchableManager
 from .utils import parse_line_en
 
 SEX_CHOICES = (
@@ -59,7 +63,8 @@ class Person( models.Model ):
 	blocked = models.BooleanField( default=False )		#Bannmerking
 	mod_date = models.DateField( blank=True, null=True ) #Dagsetning hreyfingar
 	
-
+	objects = SearchableManager( SearchablePerson )
+	
 	def __unicode__( self ):
 		return u'%s (%s)'%(self.name, self.ssn)
 
@@ -79,12 +84,13 @@ class Person( models.Model ):
 	def update_from_string( self, s ):
 		"""Parses an individual person from a national registry row"""
 		info = parse_line_en( s )
-		fresh = False
+		created = False
 		try:
 			p = Person.objects.get( ssn=info['ssn'] )
 		except Person.DoesNotExist:
 			p = Person( )
 			fresh = True
+
 		for k, v in info.items():
 			if hasattr( p, k ):
 				setattr( p, k, v )
@@ -100,5 +106,10 @@ class Person( models.Model ):
 			if hasattr( p, k ):
 				setattr( p, k, v )
 		return p, fresh
-		
-		
+	
+	@property
+	def age( self ):
+		now = datetime.now()
+		delta = now.date() - self.date_of_birth
+		return int( math.floor( delta.days/365.25 ) )
+

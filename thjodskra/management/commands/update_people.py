@@ -2,6 +2,7 @@
 import sys
 from collections import deque
 from datetime import datetime
+
 from django.core.management.base import BaseCommand, CommandError
 from ...models import Person
 
@@ -14,6 +15,7 @@ class Command(BaseCommand):
 
 		fname = args[0]
 		f = open( fname, 'r' )
+
 		count = 1
 		ttime = 0
 		lines = [ l for l in f.readlines() ]
@@ -45,5 +47,3 @@ class Command(BaseCommand):
 			Person.objects.bulk_create(buff)
 			
 		print '\nDone'
-
-

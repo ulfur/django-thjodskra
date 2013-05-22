@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
 	name = "django-thjodskra",
-    version = "0.31",
+    version = "0.33",
     description = "django-thjodskra is a simple app for integrating the icelandic national registry into your django project",
     author = "Úlfur Kristjánsson",
     author_email = "ulfur@theawesometastic.com",

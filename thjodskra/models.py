@@ -31,37 +31,37 @@ MARITAL_CHOICES = (
 class Person( models.Model ):
 	"""docstring for Person"""
 
-	name = models.CharField( db_index=True, max_length=31 )			#Nafn
-	sort_code = models.CharField( max_length=31 )		#Röðunarsvæði fyrir nafn
+	name = models.CharField( db_index=True, max_length=31 )	#Nafn
+	sort_code = models.CharField( max_length=31 )			#Röðunarsvæði fyrir nafn
 
-	personal_id = models.CharField( max_length=8 )		#Nafnnúmer
-	ssn = models.CharField( db_index=True, max_length=10 )				#Kennitala
-	ssn_spouse = models.CharField( max_length=10 )		#Kennitala maka
-	ssn_guardian = models.CharField( max_length=10 )	#Kennitala umboðsmanns
-	family_id = models.CharField( max_length=10 )		#Fjölskyldunúmer
+	personal_id = models.CharField( max_length=8 )			#Nafnnúmer
+	ssn = models.CharField( db_index=True, max_length=10 )	#Kennitala
+	ssn_spouse = models.CharField( max_length=10 )			#Kennitala maka
+	ssn_guardian = models.CharField( max_length=10 )		#Kennitala umboðsmanns
+	family_id = models.CharField( max_length=10 )			#Fjölskyldunúmer
 
 	sex = models.CharField( max_length=1, choices=SEX_CHOICES )	#Kyn
 	marital_status = models.CharField( max_length=1, choices=MARITAL_CHOICES) #Hjúskaparstaða
 
-	domicile = models.CharField( max_length=12 )		#Lögheimiliskóði
-	domicile_112 = models.CharField( max_length=12 )	#Lögheimiliskóði 1. Des s.l.
-	domicile_last = models.CharField( max_length=12 )	#Síðasta lögheimili á Íslandi
-	residence = models.CharField( max_length=12 )		#Aðsetur - lögheimiliskóði
-	address = models.CharField( max_length=21 )			#Heimilisfang í nefnifalli
-	address_thf = models.CharField( max_length=21 )		#Heimilisfang í þágufalli
+	domicile = models.CharField( max_length=12 )			#Lögheimiliskóði
+	domicile_112 = models.CharField( max_length=12 )		#Lögheimiliskóði 1. Des s.l.
+	domicile_last = models.CharField( max_length=12 )		#Síðasta lögheimili á Íslandi
+	residence = models.CharField( max_length=12 )			#Aðsetur - lögheimiliskóði
+	address = models.CharField( max_length=21 )				#Heimilisfang í nefnifalli
+	address_thf = models.CharField( max_length=21 )			#Heimilisfang í þágufalli
 			
-	postcode = models.CharField( max_length=3 )			#Póstnúmer
+	postcode = models.CharField( max_length=3 )				#Póstnúmer
 			
-	nationality = models.CharField( max_length=2 )		#Ríkisfang
-	place_of_birth = models.CharField( max_length=4 )	#Fæðingastaður
-	date_of_birth = models.DateField( )					#Fæðingadagur
+	nationality = models.CharField( max_length=2 )			#Ríkisfang
+	place_of_birth = models.CharField( max_length=4 )		#Fæðingastaður
+	date_of_birth = models.DateField( )						#Fæðingadagur
 
-	status = models.CharField( max_length=4 )			#Afdrif
+	status = models.CharField( max_length=4 )				#Afdrif
 	status_date = models.DateField( blank=True, null=True ) #Dagsetning afdrifa
 	
-	parish = models.CharField( max_length=3)			#Sókn
-	blocked = models.BooleanField( default=False )		#Bannmerking
-	mod_date = models.DateField( blank=True, null=True ) #Dagsetning hreyfingar
+	parish = models.CharField( max_length=3)				#Sókn
+	blocked = models.BooleanField( default=False )			#Bannmerking
+	mod_date = models.DateField( blank=True, null=True )	#Dagsetning hreyfingar
 	
 	objects = SearchableManager( SearchablePerson )
 	

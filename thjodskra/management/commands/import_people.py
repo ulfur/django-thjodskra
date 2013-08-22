@@ -3,12 +3,17 @@ import sys
 from collections import deque
 from datetime import datetime
 from django.core.management.base import BaseCommand, CommandError
-from ...models import Person
+from ...models import Person, Organisation
+
+ENTITIES = {
+	'FE':Person,
+	'FF':Organisation
+}
 
 class Command(BaseCommand):
 
     args = u'<filename>'
-    help = u'Imports people from þjóðskrá'
+    help = u'Imports entities from þjóðskrá'
 
     def handle(self, *args, **options):
 
@@ -18,7 +23,7 @@ class Command(BaseCommand):
 		ttime = 0
 		lines = [ l for l in f.readlines() ]
 		total = len( lines )
-		print '%i lines to process'%total
+		sys.stdout.write( '%i lines to process\n'%total )
 		
 		f.seek( 0 )
 		buff = deque()
@@ -26,22 +31,27 @@ class Command(BaseCommand):
 		for l in lines:
 			s = datetime.now()
 			
-			p, fresh = Person.from_string( l )
-			if fresh:
-				buff.append( p )
-				count += 1
+			t = l[:2]
+			klass = ENTITIES.get( t, None )
+
+			if klass is not None:
+				p, fresh = klass.from_string( l )
+				if p is not None and fresh:
+					buff.append( p )
+					count += 1
 			
-			if len(buff) >= 250:
-				Person.objects.bulk_create( buff )
-				buff = []
+				if len(buff) >= 250:
+					klass.objects.bulk_create( buff )
+					buff = deque()
 				
-			d = datetime.now() - s
-			ttime += d.total_seconds()
-			avg = ttime/count
+				d = datetime.now() - s
+				ttime += d.total_seconds()
+				avg = ttime/count
 			
-			sys.stdout.write( '\r Saved %7i people. Remain: %.2fs. Per second: %.1f' % ( count, avg*(total-count), 1/avg ) )
-			sys.stdout.flush()
+				sys.stdout.write( '\r Saved %7i people. Remain: %.2fs. Per second: %.1f' % ( count, avg*(total-count), 1/avg ) )
+				sys.stdout.flush()
+
 		if len(buff)>0:
 			Person.objects.bulk_create(buff)
 			
-		print '\nDone'
+ 		sys.stdout.write( '\nDone' )

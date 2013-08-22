@@ -6,6 +6,8 @@ from datetime import datetime
 from django.db import models
 
 from .searchable import SearchablePerson, SearchableManager
+import parser
+
 from .utils import parse_line_en
 
 SEX_CHOICES = (
@@ -28,14 +30,64 @@ MARITAL_CHOICES = (
 	('L', 'Íslendingur með lögheimili á Íslandi í hjúskap með óskráðum útlendingi')
 )
 
-class Person( models.Model ):
-	"""docstring for Person"""
+
+class Entity( models.Model ):
 
 	name = models.CharField( db_index=True, max_length=31 )	#Nafn
 	sort_code = models.CharField( max_length=31 )			#Röðunarsvæði fyrir nafn
 
+	ssn = models.CharField( db_index=True, max_length=10, unique=True )	#Kennitala
+	
+	postcode = models.CharField( max_length=3 )				#Póstnúmer
+	address = models.CharField( max_length=21 )				#Heimilisfang í nefnifalli
+	
+	blocked = models.BooleanField( default=False )			#Bannmerking
+	mod_date = models.DateField( blank=True, null=True )	#Dagsetning hreyfingar
+
+	class Meta:
+		abstract = True
+		
+	def __unicode__( self ):
+		return u'%s (%s)'%(self.name, self.ssn)
+
+	@classmethod
+	def update_from_string( cls, s ):
+		"""Parses an individual entity from a national registry row"""
+		
+		info = parser.parse( s, cls.definition )
+		created = False
+		try:
+			p = cls.objects.get( ssn=info['ssn'] )
+		except Person.DoesNotExist:
+			p = cls( )
+			fresh = True
+
+		for k, v in info.items():
+			if hasattr( p, k ):
+				setattr( p, k, v )
+		return p, fresh
+
+	@classmethod
+	def from_string( cls, s ):
+		"""Parses an individual entity from a national registry row"""
+		info = parser.parse( s, cls.definition )
+		if info:
+			p = cls( )
+			fresh = True
+			for k, v in info.items():
+				if hasattr( p, k ):
+					setattr( p, k, v )
+			return p, fresh
+		return None, False
+
+	
+class Person( Entity ):
+	"""docstring for Person"""
+
+	definition = parser.PERSON
+	
 	personal_id = models.CharField( max_length=8 )			#Nafnnúmer
-	ssn = models.CharField( db_index=True, max_length=10 )	#Kennitala
+
 	ssn_spouse = models.CharField( max_length=10 )			#Kennitala maka
 	ssn_guardian = models.CharField( max_length=10 )		#Kennitala umboðsmanns
 	family_id = models.CharField( max_length=10 )			#Fjölskyldunúmer
@@ -47,10 +99,7 @@ class Person( models.Model ):
 	domicile_112 = models.CharField( max_length=12 )		#Lögheimiliskóði 1. Des s.l.
 	domicile_last = models.CharField( max_length=12 )		#Síðasta lögheimili á Íslandi
 	residence = models.CharField( max_length=12 )			#Aðsetur - lögheimiliskóði
-	address = models.CharField( max_length=21 )				#Heimilisfang í nefnifalli
 	address_thf = models.CharField( max_length=21 )			#Heimilisfang í þágufalli
-			
-	postcode = models.CharField( max_length=3 )				#Póstnúmer
 			
 	nationality = models.CharField( max_length=2 )			#Ríkisfang
 	place_of_birth = models.CharField( max_length=4 )		#Fæðingastaður
@@ -60,14 +109,9 @@ class Person( models.Model ):
 	status_date = models.DateField( blank=True, null=True ) #Dagsetning afdrifa
 	
 	parish = models.CharField( max_length=3)				#Sókn
-	blocked = models.BooleanField( default=False )			#Bannmerking
-	mod_date = models.DateField( blank=True, null=True )	#Dagsetning hreyfingar
 	
 	objects = SearchableManager( SearchablePerson )
 	
-	def __unicode__( self ):
-		return u'%s (%s)'%(self.name, self.ssn)
-
 	@property
 	def spouse( self ):
 		if self.ssn_spouse:
@@ -79,37 +123,52 @@ class Person( models.Model ):
 		if self.ssn_guardian:
 			return Person.objects.get( ssn=self.ssn_guardian )
 		return None
-		
-	@classmethod
-	def update_from_string( self, s ):
-		"""Parses an individual person from a national registry row"""
-		info = parse_line_en( s )
-		created = False
-		try:
-			p = Person.objects.get( ssn=info['ssn'] )
-		except Person.DoesNotExist:
-			p = Person( )
-			fresh = True
-
-		for k, v in info.items():
-			if hasattr( p, k ):
-				setattr( p, k, v )
-		return p, fresh
-	
-	@classmethod
-	def from_string( self, s ):
-		"""Parses an individual person from a national registry row"""
-		info = parse_line_en( s )
-		p = Person( )
-		fresh = True
-		for k, v in info.items():
-			if hasattr( p, k ):
-				setattr( p, k, v )
-		return p, fresh
-	
+				
 	@property
 	def age( self ):
 		now = datetime.now()
 		delta = now.date() - self.date_of_birth
 		return int( math.floor( delta.days/365.25 ) )
+		
+class Organisation( Entity ):
 
+	definition = parser.ORGANISATION
+	
+	province = models.CharField( max_length=4, blank=True, null=True )
+
+	old_org_type = models.CharField( max_length=1, blank=True, null=True )
+	location = models.CharField( max_length=4, blank=True, null=True )
+
+	vat_number = models.CharField( max_length=10, blank=True, null=True )
+
+	chairman_ssn = models.CharField( max_length=10, blank=True, null=True )
+
+	org_type = models.CharField( max_length=2, blank=True, null=True )
+
+	old_vat_number = models.CharField( max_length=5, blank=True, null=True )
+	domicile = models.CharField( max_length=4, blank=True, null=True )
+	registration_date = models.DateField( blank=True, null=True )
+	activity = models.CharField( max_length=16 )
+
+	recipient_ssn = models.CharField( max_length=10, blank=True, null=True )
+	recipient_name = models.CharField( max_length=31, blank=True, null=True )
+	isat = models.CharField( max_length=5, blank=True, null=True )
+
+	deregistered = models.CharField( max_length=1, blank=True, null=True )
+	dereg_type = models.CharField( max_length=4, blank=True, null=True )
+	dereg_date = models.DateField( max_length=8, blank=True, null=True )
+	
+	@property
+	def chairman( self ):
+		if self.chairman_ssn:
+			return Person.objects.get( ssn=self.chairman_ssn )
+		return None
+		
+	@property
+	def recipient( self ):
+		if self.recipient_ssn:
+			return Person.objects.get( ssn=self.recipient_ssn )
+		return None
+		
+		
+		

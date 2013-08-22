@@ -1,6 +1,5 @@
 #encoding: utf-8
 import sys
-from collections import deque
 from datetime import datetime
 from ftplib import FTP
 from django.conf import settings
@@ -26,4 +25,4 @@ class Command(BaseCommand):
 		outfile.truncate()
 		outfile.close()
 		
-		print fname
+		sys.stdout.write( fname )

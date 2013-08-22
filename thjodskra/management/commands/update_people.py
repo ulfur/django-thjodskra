@@ -20,7 +20,7 @@ class Command(BaseCommand):
 		ttime = 0
 		lines = [ l for l in f.readlines() ]
 		total = len( lines )
-		print '%i lines to process'%total
+ 		sys.stdout.write( '%i lines to process\n'%total )
 		
 		f.seek( 0 )
 		buff = deque()
@@ -29,13 +29,13 @@ class Command(BaseCommand):
 			s = datetime.now()
 			
 			p, fresh = Person.update_from_string( l )
-			if fresh: buff.append( p )
-			else: p.save()
+			if p is not None and fresh: buff.append( p )
+			elif p is not None: p.save()
 			count += 1
 				
 			if len(buff) >= 250:
 				Person.objects.bulk_create( buff )
-				buff = []
+				buff = deque()
 				
 			d = datetime.now() - s
 			ttime += d.total_seconds()
@@ -46,4 +46,4 @@ class Command(BaseCommand):
 		if len(buff)>0:
 			Person.objects.bulk_create(buff)
 			
-		print '\nDone'
+		sys.stdout.write( '\nDone' )

@@ -12,14 +12,15 @@ thjodskra.models.Person corresponds to rows in the national registry.
 
 python manage.py fetch_update
 Fetches update file via FTP, this file can then be used with update_people
+
 Requires django settings:
 
-THJODSKRA = {
-	'host': [Address of your update provider],
-	'username': [FTP Username],
-	'password': [FTP Password],
-	'file': [Path and name of update file to fetch]
-}
+	THJODSKRA = {
+		'host': [Address of your update provider],
+		'username': [FTP Username],
+		'password': [FTP Password],
+		'file': [Path and name of update file to fetch]
+	}
 
 python manage.py update_people [filename]  
 Imports people that have not yet been added to local database and updates the info of those who have.

@@ -2,7 +2,7 @@
 import sys
 from collections import deque
 from datetime import datetime
-from ftplib import FTP_TLS
+from ftplib import FTP
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from ...models import Person
@@ -17,7 +17,7 @@ class Command(BaseCommand):
 		outfile = open( fname, 'wb' )
 		
 		thjodskra = settings.THJODSKRA
-		ftp = FTP_TLS( thjodskra['host'] )
+		ftp = FTP( thjodskra['host'] )
 		if thjodskra.has_key('username') and thjodskra.has_key('password'):
 			ftp.login( thjodskra['username'], thjodskra['password'] )
 		ftp.retrbinary( thjodskra['file'], outfile.write )
@@ -25,10 +25,8 @@ class Command(BaseCommand):
 		
 		outfile.truncate()
 		outfile.close()
-		print '\nDone'
 		
-		
-		
+		print fname
 '''
 Sæll aftur, 
 

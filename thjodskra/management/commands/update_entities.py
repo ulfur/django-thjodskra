@@ -18,7 +18,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 		
-		logger = logging.getLogger( 'django.management' )
+		logger = logging.getLogger( 'django-thjodskra' )
 		
 		fname = args[0]
 		f = open( fname, 'r' )
@@ -61,5 +61,5 @@ class Command(BaseCommand):
 		for klass, buff in ENTITIES.values():
 			if len(buff)>0:
 				klass.objects.bulk_create(buff)
-		logger.info( 'UPDATE_ENTITIES: %s'%result_str )
+		logger.info( 'UPDATE_ENTITIES: %s'%ipy	result_str )
 		sys.stdout.write( '\nDone. %i entities updated'%updated )

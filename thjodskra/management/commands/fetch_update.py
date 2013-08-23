@@ -17,9 +17,11 @@ class Command(BaseCommand):
 		outfile = self.get_file( args[0] if len(args)>0 else None )
 		ftp = self.get_ftp_connection()
 		
-		ftp.retrlines( 'RETR %s'%self.settings['file'], outfile.write )
+		lines = []
+		ftp.retrlines( 'RETR %s'%self.settings['file'], lines.append )
 		ftp.close()
 		
+		outfile.writelines( ['%s\n'%l for l in lines])
 		outfile.truncate()
 		
 		fname = os.path.abspath( outfile.name )

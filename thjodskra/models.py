@@ -56,7 +56,7 @@ class Entity( models.Model ):
 		fresh = False
 		try:
 			p = cls.objects.get( ssn=info['ssn'] )
-		except Person.DoesNotExist:
+		except cls.DoesNotExist:
 			p = cls( )
 			fresh = True
 

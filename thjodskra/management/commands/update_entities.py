@@ -30,7 +30,6 @@ class Command(BaseCommand):
 		
 		f.seek( 0 )
 
-
 		for l in lines:
 			s = datetime.now()
 

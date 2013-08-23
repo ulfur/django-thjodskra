@@ -8,7 +8,7 @@ class PersonAdmin( admin.ModelAdmin ):
 admin.site.register( Person, PersonAdmin )
 
 class OrganisationAdmin( admin.ModelAdmin ):
-	list_display = ( 'name', 'ssn', 'address', 'postcode', 'blocked' )
+	list_display = ( 'name', 'ssn', 'address', 'postcode', 'activity', 'recipient', 'is_deregistered', 'blocked' )
 	list_filter = ('postcode',)
 	search_fields = ('name', 'ssn')	
 admin.site.register( Organisation, OrganisationAdmin )

@@ -8,8 +8,6 @@ from django.db import models
 from .searchable import SearchablePerson, SearchableManager
 import parser
 
-from .utils import parse_line_en
-
 SEX_CHOICES = (
 	(1,'Karl'), 
 	(2,'Kona'), 
@@ -55,7 +53,7 @@ class Entity( models.Model ):
 		"""Parses an individual entity from a national registry row"""
 		
 		info = parser.parse( s, cls.definition )
-		created = False
+		fresh = False
 		try:
 			p = cls.objects.get( ssn=info['ssn'] )
 		except Person.DoesNotExist:
@@ -65,7 +63,7 @@ class Entity( models.Model ):
 		for k, v in info.items():
 			if hasattr( p, k ):
 				setattr( p, k, v )
-		return p, fresh
+		return p, False
 
 	@classmethod
 	def from_string( cls, s ):
@@ -158,6 +156,10 @@ class Organisation( Entity ):
 	dereg_type = models.CharField( max_length=4, blank=True, null=True )
 	dereg_date = models.DateField( max_length=8, blank=True, null=True )
 	
+	@property
+	def is_deregistered( self ):
+		return self.deregistered == 'E'
+		
 	@property
 	def chairman( self ):
 		if self.chairman_ssn:

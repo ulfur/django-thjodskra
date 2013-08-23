@@ -6,8 +6,8 @@ from django.core.management.base import BaseCommand, CommandError
 from ...models import Person, Organisation
 
 ENTITIES = {
-	'FE':Person,
-	'FF':Organisation
+	'FE': (Person, deque()),
+	'FF': (Organisation, deque())
 }
 
 class Command(BaseCommand):
@@ -19,20 +19,19 @@ class Command(BaseCommand):
 
 		fname = args[0]
 		f = open( fname, 'r' )
-		count = 1
+		count = 0
 		ttime = 0
 		lines = [ l for l in f.readlines() ]
 		total = len( lines )
 		sys.stdout.write( '%i lines to process\n'%total )
 		
 		f.seek( 0 )
-		buff = deque()
 
 		for l in lines:
 			s = datetime.now()
 			
 			t = l[:2]
-			klass = ENTITIES.get( t, None )
+			klass, buff = ENTITIES.get( t, (None,None) )
 
 			if klass is not None:
 				p, fresh = klass.from_string( l )
@@ -42,16 +41,18 @@ class Command(BaseCommand):
 			
 				if len(buff) >= 250:
 					klass.objects.bulk_create( buff )
-					buff = deque()
+					ENTITIES[t][1].clear()
 				
 				d = datetime.now() - s
 				ttime += d.total_seconds()
-				avg = ttime/count
+				avg = ttime/(count+1)
 			
 				sys.stdout.write( '\r Saved %7i people. Remain: %.2fs. Per second: %.1f' % ( count, avg*(total-count), 1/avg ) )
 				sys.stdout.flush()
 
-		if len(buff)>0:
-			Person.objects.bulk_create(buff)
+		#Empty out the remaining items in the buffers
+		for klass, buff in ENTITIES.values():
+			if len(buff)>0:
+				klass.objects.bulk_create(buff)
 			
  		sys.stdout.write( '\nDone' )

@@ -1,5 +1,5 @@
 #encoding: utf-8
-import sys
+import sys, logging
 from collections import deque
 from datetime import datetime
 
@@ -17,7 +17,9 @@ class Command(BaseCommand):
     help = u'Updates entities from þjóðskrá'
 
     def handle(self, *args, **options):
-
+		
+		logger = logging.getLogger( 'django.management' )
+		
 		fname = args[0]
 		f = open( fname, 'r' )
 
@@ -51,12 +53,13 @@ class Command(BaseCommand):
 				ttime += d.total_seconds()
 				avg = ttime/(count+1)
 			
-				sys.stdout.write( '\r Created %7i entities, updated %7i. Remain: %.2fs. Per second: %.1f' % ( (count-updated), updated, avg*(total-count), 1/avg ) )
+				result_str =  'Created %7i entities, updated %7i. Remain: %.2fs. Per second: %.1f' % ( (count-updated), updated, avg*(total-count), 1/avg )
+				sys.stdout.write( '\r%s'%result_str )
 				sys.stdout.flush()
 
 		#Empty out the remaining items in the buffers
 		for klass, buff in ENTITIES.values():
 			if len(buff)>0:
 				klass.objects.bulk_create(buff)
-			
+		logger.info( 'UPDATE_ENTITIES: %s'%result_str )
 		sys.stdout.write( '\nDone. %i entities updated'%updated )

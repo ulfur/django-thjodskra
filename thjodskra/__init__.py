@@ -1,4 +1,4 @@
-VERSION = 0.53
+VERSION = 0.55
 
 def get_version( ):
 	return VERSION

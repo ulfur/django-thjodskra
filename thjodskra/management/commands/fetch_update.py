@@ -17,7 +17,7 @@ class Command(BaseCommand):
 		outfile = self.get_file( args[0] if len(args)>0 else None )
 		ftp = self.get_ftp_connection()
 		
-		ftp.retrbinary( 'RETR %s'%self.settings['file'], outfile.write )
+		ftp.retrlines( 'RETR %s'%self.settings['file'], outfile.write )
 		ftp.close()
 		
 		outfile.truncate()
@@ -29,7 +29,7 @@ class Command(BaseCommand):
 	def get_file( self, fname ):
 		if fname is None:
 			fname = self.settings.get( 'outfile', 'thjodskra_%s.txt' )%datetime.now().strftime('%d%m%Y')
-		return open( fname, 'wb' )
+		return open( fname, 'w' )
 		
 	def get_ftp_connection( self ):
 		ftp = FTP( )

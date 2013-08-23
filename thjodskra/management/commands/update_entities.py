@@ -61,5 +61,5 @@ class Command(BaseCommand):
 		for klass, buff in ENTITIES.values():
 			if len(buff)>0:
 				klass.objects.bulk_create(buff)
-		logger.info( 'UPDATE_ENTITIES: %s'%ipy	result_str )
+		logger.info( 'UPDATE_ENTITIES: %s'%result_str )
 		sys.stdout.write( '\nDone. %i entities updated'%updated )

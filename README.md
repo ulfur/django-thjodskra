@@ -10,6 +10,9 @@ pip install django-thjodskra
 ###Usage:
 thjodskra.models.Person corresponds to rows in the national registry.
 
+python manage.py import_entities
+This should only be used for the initial import of registry data, i.e. when you have an empty DB and a big text file containing the complete registry.
+
 python manage.py fetch_update
 Fetches update file via FTP, this file can then be used with update_people
 
@@ -22,7 +25,7 @@ Requires django settings:
 		'file': [Path and name of update file to fetch]
 	}
 
-python manage.py update_people [filename]  
+python manage.py update_entities [filename]  
 Imports people that have not yet been added to local database and updates the info of those who have.
 
 This can then be added to any script or cronjob as needed.

@@ -62,4 +62,4 @@ class Command(BaseCommand):
 			if len(buff)>0:
 				klass.objects.bulk_create(buff)
 		logger.info( 'UPDATE_ENTITIES: %s'%result_str )
-		sys.stdout.write( '\nDone. %i entities updated'%updated )
+		sys.stdout.write( '\nDone. %i entities updated\n'%updated )

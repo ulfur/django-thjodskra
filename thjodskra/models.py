@@ -114,7 +114,7 @@ class Person( Entity ):
     
     @property
     def spouse( self ):
-        if self.ssn_spouse:
+        if self.ssn_spouse and len(self.ssn_spouse)==10:
             return Person.objects.get( ssn=self.ssn_spouse )
         return None
 
